@@ -21,21 +21,9 @@ async function buildCharts() {
   const lineMark   = { type: 'line', interpolate: 'monotone', stroke: "blue", point: { size: pointSize } }
   const loessMark  = { type: 'line', interpolate: 'monotone', color:  'red' }
 
-  const totalChart = [
-    {
-      mark: areaMark,
-      encoding: encoding('brush', 'min-max')
-    },
-    {
-      mark: loessMark,
-      transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
-      encoding: encoding('brush', 'min-max')
-    }
-  ]
-
   const recentChart = [
     {
-      mark: lineMark,
+      mark: { ...lineMark, stroke: undefined } ,
       encoding: {
         ...encoding('none', 'zero-false'),
         color: { field: 'date', type: 'nominal', timeUnit: 'week' },
@@ -45,6 +33,29 @@ async function buildCharts() {
       mark: loessMark,
       transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
       encoding: encoding('none', 'zero-false')
+    }
+  ]
+
+  const dowChart = [
+    {
+      mark: { type: 'line', interpolate: 'monotone', point: { size: pointSize } },
+      encoding: {
+        x: { field: 'date',   type: 'nominal', timeUnit: 'day' },
+        y: { field: 'weight', type: 'quantitative', scale: { zero: false } },
+        color: { field: 'date', type: 'nominal', timeUnit: 'week', legend: { title: 'week'} },
+      }
+    },
+  ]
+
+  const totalChart = [
+    {
+      mark: areaMark,
+      encoding: encoding('brush', 'min-max')
+    },
+    {
+      mark: loessMark,
+      transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
+      encoding: encoding('brush', 'min-max')
     }
   ]
 
@@ -61,17 +72,6 @@ async function buildCharts() {
     },
   ]
 
-  const dowChart = [
-    {
-      mark: { type: 'line', interpolate: 'monotone', point: { size: pointSize } },
-      encoding: {
-        x: { field: 'date',   type: 'nominal', timeUnit: 'day' },
-        y: { field: 'weight', type: 'quantitative', scale: { zero: false } },
-        color: { field: 'date', type: 'nominal', timeUnit: 'week', legend: { title: 'week'} },
-      }
-    },
-  ]
-
   width = 500
 
   const chartSpec = {
@@ -83,13 +83,13 @@ async function buildCharts() {
         vconcat: [
           {
             data: recentData,
-            height: 200, width,
+            height: 175, width,
             encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: recentChart,
           },
           {
             data: recentData,
-            height: 200, width,
+            height: 175, width,
             encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: dowChart,
           },
