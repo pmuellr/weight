@@ -57,6 +57,17 @@ async function buildCharts() {
     },
   ]
 
+  const dowChart = [
+    {
+      mark: { type: 'line', interpolate: 'monotone' },
+      encoding: {
+        x: { field: 'date',   type: 'nominal', timeUnit: 'day' },
+        y: { field: 'weight', type: 'quantitative', scale: { zero: false } },
+        color: { field: 'date', type: 'nominal', timeUnit: 'week', legend: { title: 'week'} },
+      }
+    },
+  ]
+
   width = 500
 
   const chartSpec = {
@@ -65,10 +76,19 @@ async function buildCharts() {
     data,
     hconcat: [
       {
-        data: recentData,
-        height: 300, width,
-        encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
-        layer: recentChart,
+        vconcat: [
+          {
+            data: recentData,
+            height: 200, width,
+            encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
+            layer: recentChart,
+          },
+          {
+            data: recentData,
+            height: 200, width,
+            layer: dowChart,
+          },
+        ],
       },
       {
         vconcat: [
