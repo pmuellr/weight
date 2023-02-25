@@ -65,6 +65,12 @@ async function buildCharts() {
     data,
     hconcat: [
       {
+        data: recentData,
+        height: 300, width,
+        encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
+        layer: recentChart,
+      },
+      {
         vconcat: [
           {
             height: 300, width,
@@ -77,12 +83,6 @@ async function buildCharts() {
             layer: brushChart
           },
         ],
-      },
-      {
-        data: recentData,
-        height: 300, width,
-        encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
-        layer: recentChart,
       },
     ]
   }

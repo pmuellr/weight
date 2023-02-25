@@ -15,4 +15,16 @@ So, **your weight data is private**.
 But also, **it's not backed up if you clone this repo**.
 You know what to do ... (but don't ask me!)
 
+The thinner chart below the taller chart is a selection picker.  Drag
+the mouse across a range of dates and the taller chart will be 
+re-rendered within that range.
+
+
 https://pmuellr.github.io/weight/weight.html
+
+You will need to run a web server to host these files, as they `fetch()`
+the `.csv` file.  I use [`serve` from npm](https://www.npmjs.com/package/serve),
+installed globally.  Run it from this directory.  
+
+The default "build" script for this project in vsCode will launch `serve`,
+so you can press `shift-command-B` to launch.
