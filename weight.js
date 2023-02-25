@@ -36,7 +36,10 @@ async function buildCharts() {
   const recentChart = [
     {
       mark: lineMark,
-      encoding: encoding('none', 'zero-false')
+      encoding: {
+        ...encoding('none', 'zero-false'),
+        color: { field: 'date', type: 'nominal', timeUnit: 'week' },
+      },
     },
     {
       mark: loessMark,
