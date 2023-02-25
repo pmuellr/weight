@@ -16,8 +16,9 @@ async function buildCharts() {
     { field: 'weight', type: 'quantitative' },
   ]
 
+  const pointSize = 50
   const areaMark   = { type: 'area', interpolate: 'monotone', stroke: "blue" , fill:"#0000" }
-  const lineMark   = { type: 'line', interpolate: 'monotone', stroke: "blue" }
+  const lineMark   = { type: 'line', interpolate: 'monotone', stroke: "blue", point: { size: pointSize } }
   const loessMark  = { type: 'line', interpolate: 'monotone', color:  'red' }
 
   const totalChart = [
@@ -46,7 +47,7 @@ async function buildCharts() {
 
   const brushChart = [
     {
-      mark: lineMark,
+      mark: { ...lineMark, point: false },
       params: [{ name: 'brush', select: { type: 'interval', encodings: ['x'] }}],
       encoding: encoding('none', 'min-max')
     },
@@ -59,7 +60,7 @@ async function buildCharts() {
 
   const dowChart = [
     {
-      mark: { type: 'line', interpolate: 'monotone' },
+      mark: { type: 'line', interpolate: 'monotone', point: { size: pointSize } },
       encoding: {
         x: { field: 'date',   type: 'nominal', timeUnit: 'day' },
         y: { field: 'weight', type: 'quantitative', scale: { zero: false } },
@@ -86,6 +87,7 @@ async function buildCharts() {
           {
             data: recentData,
             height: 200, width,
+            encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: dowChart,
           },
         ],
@@ -151,7 +153,7 @@ async function getData() {
     .filter( l => l)
     .map(    l => l.split(','))
     .filter(([date, weight]) => (date && weight))
-    .map(   ([date, weight]) => ([new Date(date), Number(weight)]))
+    .map(   ([date, weight]) => ([new Date(`${date}T00:00:00.000`), Number(weight)]))
     .filter(([date, weight]) => !isNaN(date) && !isNaN(weight))
     .map(   ([date, weight]) => ({ date, weight }))
 
