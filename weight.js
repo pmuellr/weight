@@ -1,84 +1,111 @@
 async function buildCharts() {
 
+  const msForOneWeek = 7 * 24 * 60 * 60 * 1000
+  const currentDate = new Date()
+  const recentDate  = new Date(currentDate.valueOf() - msForOneWeek * 8)
+
   const data = await getData()
-  const { min: minWeight, max: maxWeight } = getMinMaxWeight(data)
-  const totalSpec = {
+  const recentData = { 
+    values: data.values.filter(({ date }) => date.valueOf() > recentDate.valueOf())
+  }
+
+  const { min: minWeight, max: maxWeight } = getMinMaxWeightBounds(data)
+
+  const tooltip = [
+    { field: 'date',   type: 'temporal' },
+    { field: 'weight', type: 'quantitative' },
+  ]
+
+  const areaMark   = { type: 'area', interpolate: 'monotone', stroke: "blue" , fill:"#0000" }
+  const lineMark   = { type: 'line', interpolate: 'monotone', stroke: "blue" }
+  const loessMark  = { type: 'line', interpolate: 'monotone', color:  'red' }
+
+  const totalChart = [
+    {
+      mark: areaMark,
+      encoding: encoding('brush', 'min-max')
+    },
+    {
+      mark: loessMark,
+      transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
+      encoding: encoding('brush', 'min-max')
+    }
+  ]
+
+  const recentChart = [
+    {
+      mark: lineMark,
+      encoding: encoding('none', 'zero-false')
+    },
+    {
+      mark: loessMark,
+      transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
+      encoding: encoding('none', 'zero-false')
+    }
+  ]
+
+  const brushChart = [
+    {
+      mark: lineMark,
+      params: [{ name: 'brush', select: { type: 'interval', encodings: ['x'] }}],
+      encoding: encoding('none', 'min-max')
+    },
+    {
+      mark: loessMark,
+      transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
+      encoding: encoding('none', 'min-max')
+    },
+  ]
+
+  width = 500
+
+  const chartSpec = {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
     description: 'recent',
     data,
-    vconcat: [
+    hconcat: [
       {
-        height: 300,
-        width: 'container',
-        encoding: {
-          x: { field: 'date',  type: 'temporal' /*, timeUnit: 'yearmonthdate' */ },
-          tooltip: [
-            { field: 'date',   type: 'temporal' /*, timeUnit: 'yearmonthdate' */  },
-            { field: 'weight', type: 'quantitative' },
-          ]
-        },
-        layer: [
+        vconcat: [
           {
-            mark: { type: 'area', interpolate: 'monotone', fill:"#0000", stroke: "blue" },
-            encoding: {
-              x: { field: 'date',   type: 'temporal' /*, timeUnit: 'yearmonthdate' */ , scale: { domain: { param: 'brush' }} },
-              y: { field: 'weight', type: 'quantitative', scale: { domain: [minWeight, maxWeight] }}, // { zero: false }}
-            },
+            height: 300, width,
+            encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
+            layer: totalChart,
           },
           {
-            mark: { type: 'line', color: 'red', interpolate: 'monotone' },
-            // transform: [ { regression: 'weight', on: 'date' } ],
-            transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
-            encoding: {
-              x: { field: 'date',   type: 'temporal' /*, timeUnit: 'yearmonthdate' */ , scale: { domain: { param: 'brush' }} },
-              y: { field: 'weight', type: 'quantitative', scale: { domain: [minWeight, maxWeight] }},// { zero: false }}
-            }
+            height: 50, width,
+            encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
+            layer: brushChart
           },
-        ]
+        ],
       },
       {
-        height: 50,
-        width: 'container',
-        layer: [
-          {
-            mark: { type: 'line', interpolate: 'monotone', stroke: "blue"},
-            params: [{ name: 'brush', select: { type: 'interval', encodings: ['x'] }}],
-            encoding: {
-              x: { field: 'date',   type: 'temporal' /*, timeUnit: 'yearmonthdate' */  },
-              y: { field: 'weight', type: 'quantitative', scale: { zero: false }},
-            }
-          },
-          {
-            mark: { type: 'line', color: 'red', interpolate: 'monotone' },
-            // transform: [ { regression: 'weight', on: 'date' } ],
-            transform: [ { loess: 'weight', on: 'date', bandwidth: 0.0 } ],
-            encoding: {
-              x: { field: 'date',   type: 'temporal' /*, timeUnit: 'yearmonthdate' */  },
-              y: { field: 'weight', type: 'quantitative', scale: { zero: false }},
-            }
-          },
-        ]
+        data: recentData,
+        height: 300, width,
+        encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
+        layer: recentChart,
       },
     ]
   }
 
-  const msForFourWeeks = 1000 * 60 * 60 * 24 * 7 * 4
-  const dateNow = Date.now()
-  
-  const recentSpec = JSON.parse(JSON.stringify(totalSpec))
-  recentSpec.data.values = totalSpec.data.values.filter( ({ date, weight }) => 
-    dateNow - date.valueOf() < msForFourWeeks 
-  )
-  
-  //vegaEmbed('#graph-recent', recentSpec);
-  vegaEmbed('#graph-total',  totalSpec);
+  vegaEmbed('#chart',  chartSpec)
 
-  //console.log(recentSpec)
-  //console.log(totalSpec)
+  /** @type { (xScale: 'brush' | 'none', yScale: 'zero-false' | 'min-max') => any } */
+  function encoding(xScale, yScale) {
+    const result = {
+      x: { field: 'date',   type: 'temporal' },
+      y: { field: 'weight', type: 'quantitative' },
+    }
+
+    if (xScale === 'brush')       result.x.scale = { domain: { param: 'brush' }}
+    // if (xScale === 'recent')      result.x.scale = { domain: [ recentDate, currentDate ] }
+    if (yScale === 'zero-false')  result.y.scale = { zero: false }
+    if (yScale === 'min-max')     result.y.scale = { domain: [ minWeight, maxWeight ] }
+
+    return result
+  }
 }
 
-
-function getMinMaxWeight(data) {
+function getMinMaxWeightBounds(data) {
   const { values } = data
   const weights = values.map(d => d.weight)
 
@@ -93,8 +120,8 @@ function next10Up(number) {
 }
 
 function next10Down(number) {
-  const tenth = Math.floor(number / 10)
-  return (tenth - 1) * 10
+  const tenth = Math.floor((number - 1) / 10)
+  return (tenth) * 10
 }
 
 async function getData() {
@@ -114,7 +141,8 @@ async function getData() {
 async function getDataCSV() {
   let resp
   try {
-    resp = await fetch('./weight-demo.csv')
+    resp = await fetch('./weight.csv')
+    // resp = await fetch('./weight-demo.csv')
   } catch (err) {
     console.log('file weight.csv not found, looking for weight-demo.csv instead')
     resp = await fetch('./weight-demo.csv')
