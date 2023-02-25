@@ -15,3 +15,4 @@ So, **your weight data is private**.
 But also, **it's not backed up if you clone this repo**.
 You know what to do ... (but don't ask me!)
 
+https://pmuellr.github.io/weight/weight.html

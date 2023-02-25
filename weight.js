@@ -140,14 +140,19 @@ async function getData() {
 
 async function getDataCSV() {
   let resp
+  let body
+
   try {
     resp = await fetch('./weight.csv')
-    // resp = await fetch('./weight-demo.csv')
+    if (!resp.ok) throw new Error(`error getting CSV: ${resp.status} ${resp.statusText}`)
+
+    body = await resp.text()
+    return body.trim()
   } catch (err) {
     console.log('file weight.csv not found, looking for weight-demo.csv instead')
-    resp = await fetch('./weight-demo.csv')
   }
 
-  const body = await resp.text()
+  resp = await fetch('./weight-demo.csv')
+  body = await resp.text()
   return body.trim()
 }
