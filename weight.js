@@ -16,10 +16,13 @@ async function buildCharts() {
     { field: 'weight', type: 'quantitative' },
   ]
 
+  const lineColor  = 'green'
+  const loessColor = 'red'
+
   const pointSize = 50
-  const areaMark   = { type: 'area', interpolate: 'monotone', stroke: "blue" , fill:"#0000" }
-  const lineMark   = { type: 'line', interpolate: 'monotone', stroke: "blue", point: { size: pointSize } }
-  const loessMark  = { type: 'line', interpolate: 'monotone', color:  'red' }
+  const areaMark   = { type: 'area', interpolate: 'monotone', stroke: lineColor , fill:'#0000' }
+  const lineMark   = { type: 'line', interpolate: 'monotone', stroke: lineColor, point: { size: pointSize } }
+  const loessMark  = { type: 'line', interpolate: 'monotone', color:  loessColor }
 
   const recentChart = [
     {
