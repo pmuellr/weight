@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# copy this file to 'backup.sh' - that file is .gitignore'd
+
+# https://cli.github.com/
+
+GIST_URL=`echo enter the URL to your secret Github gist here`
+
+# update the weight.csv file in the gist with the local file
+gh gist edit $GIST_URL --add weight.csv
+
+echo ""
+echo check revisions at $GIST_URL/revisions
+echo ""
+
+# to view contents of weight.csv in gist:
+#
+#    gh gist view $GIST_ID --filename weight.csv --raw

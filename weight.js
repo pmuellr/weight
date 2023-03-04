@@ -24,12 +24,18 @@ async function buildCharts() {
   const lineMark   = { type: 'line', interpolate: 'monotone', stroke: lineColor, point: { size: pointSize } }
   const loessMark  = { type: 'line', interpolate: 'monotone', color:  loessColor }
 
+  // https://vega.github.io/vega-lite/docs/scale.html
+  // https://vega.github.io/vega/docs/schemes/#reference
+  const recentScale = { scheme: 'rainbow' }
+  // const recentScale = { scheme: 'category10' }
+  // const recentScale = { scheme: 'tableau10' }
+  
   const recentChart = [
     {
       mark: { ...lineMark, stroke: undefined } ,
       encoding: {
         ...encoding('none', 'zero-false'),
-        color: { field: 'date', type: 'nominal', timeUnit: 'week' },
+        color: { field: 'date', type: 'nominal', timeUnit: 'week', scale: recentScale },
       },
     },
     {
@@ -45,7 +51,7 @@ async function buildCharts() {
       encoding: {
         x: { field: 'date',   type: 'nominal', timeUnit: 'day' },
         y: { field: 'weight', type: 'quantitative', scale: { zero: false } },
-        color: { field: 'date', type: 'nominal', timeUnit: 'week', legend: { title: 'week'} },
+        color: { field: 'date', type: 'nominal', timeUnit: 'week', legend: { title: 'week'}, scale: recentScale },
       }
     },
   ]
