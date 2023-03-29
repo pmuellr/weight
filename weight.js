@@ -19,7 +19,7 @@ async function buildCharts() {
   const lineColor  = 'green'
   const loessColor = 'red'
 
-  const pointSize = 50
+  const pointSize = 100
   const areaMark   = { type: 'area', interpolate: 'monotone', stroke: lineColor , fill:'#0000' }
   const lineMark   = { type: 'line', interpolate: 'monotone', stroke: lineColor, point: { size: pointSize } }
   const loessMark  = { type: 'line', interpolate: 'monotone', color:  loessColor }
@@ -81,7 +81,7 @@ async function buildCharts() {
     },
   ]
 
-  width = 500
+  width = 700
 
   const chartSpec = {
     $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
@@ -92,13 +92,13 @@ async function buildCharts() {
         vconcat: [
           {
             data: recentData,
-            height: 175, width,
+            height: 400, width,
             encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: recentChart,
           },
           {
             data: recentData,
-            height: 175, width,
+            height: 400, width,
             encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: dowChart,
           },
@@ -107,12 +107,12 @@ async function buildCharts() {
       {
         vconcat: [
           {
-            height: 300, width,
+            height: 600, width,
             encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: totalChart,
           },
           {
-            height: 50, width,
+            height: 100, width,
             encoding: { x: { field: 'date',  type: 'temporal' }, tooltip },
             layer: brushChart
           },
