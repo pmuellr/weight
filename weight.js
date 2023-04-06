@@ -163,6 +163,7 @@ async function getData() {
     .split('\n')
     .map(    l => l.trim())
     .filter( l => l)
+    .filter( l => !(`${l}`.startsWith("#")))
     .map(    l => l.split(','))
     .filter(([date, weight]) => (date && weight))
     .map(   ([date, weight]) => ([new Date(`${date}T00:00:00.000`), Number(weight)]))
